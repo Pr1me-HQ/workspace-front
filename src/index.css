@@ -411,9 +411,9 @@ a:hover::after{
     .menu {
         background-color: #0865a7;
         width: 75%;
-        height: 100%;
+        height: max-content;
         transition: height 0.3s ease-in-out, opacity 0.3s ease-in-out;
-        overflow: scroll;
+        overflow: visible;
         position: absolute;
         z-index: 10;
     }
