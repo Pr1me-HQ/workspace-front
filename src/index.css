@@ -397,7 +397,7 @@ a:hover::after{
         height: 0.5em;
         background-color: #fff;
         border-radius: 0.5em;
-        z-index: 11;
+        z-index: 10;
         position: relative;
     }
     .burger-bar:nth-child(2){    
@@ -413,15 +413,15 @@ a:hover::after{
         width: 75%;
         height: 100vh;
         transition: height 0.3s ease-in-out, opacity 0.3s ease-in-out;
-        overflow: visible;
+        overflow:auto;
         position: absolute;
-        z-index: 10;
+        z-index: 1;
     }
 
 
 
     .menu::-webkit-scrollbar {
-        width: 0;
+        width: 2px;
     }
     
     .menu ul {
@@ -432,19 +432,22 @@ a:hover::after{
         justify-content: flex-start;
         align-items: flex-start;
         height: 100%;
+        width: 100%;
     }
 
     /* ------------- sliding menu ------------------ */
     .menu.visible {
         opacity: 1;
         display: flex;
+
+        /* make it apper from left */
+        transform: translateX(0);
+        transition: 0.3s;
     }
     
     .menu.hidden {
         display: none;
-        height: 0;
-        opacity: 0;
-        transition: height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        transform: translateX(-100%);
     }
 
     /* ----- animations--------- */
@@ -457,18 +460,15 @@ a:hover::after{
 
     .burger-bar.clicked:nth-child(1){
         transform: rotate(45deg) translate(0.75em, 1.25em);
-        transition: ease-out 0.5s;
     }
 
     .burger-bar.clicked:nth-child(2){
         transform: scale(0.1);
-        transition: ease-out 0.5s;
     }
 
     .burger-bar.clicked:nth-child(3){
         transform: rotate(135deg) translate(-0.5em, 1em);
-        transition: ease-out 0.5s;
-    }
+        }
 
     /* unclicked */
     .burger-bar.unclicked {
