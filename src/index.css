@@ -328,7 +328,7 @@ a:hover::after{
         font-size: 0.8rem;
         max-height: max-content;
     }
-    .btn-add{     
+    .btn-add{
         font-size: 0.8rem;
     }
     .nav-links{
@@ -351,6 +351,9 @@ a:hover::after{
         position: relative;
         display: flex;
         align-self: flex-end;
+    }
+    a{
+        font-size: 0.8rem;
     }
     a:hover{
         color: #000
