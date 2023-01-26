@@ -2,22 +2,31 @@ import { useEffect, useState } from "react";
 import axiosClient from "../axios-client.js";
 import { useStateContext } from "../context/ContextProvider.jsx";
 import { Link } from "react-router-dom";
-import React from 'react';
-import loading_icon from '../assets/loading.svg';
-
+import React from "react";
+import loading_icon from "../assets/loading.svg";
+import Modal from "./Modal";
 
 export default function Categories() {
   const [categories, setCategories] = useState([]);
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState({});
   const [loading, setLoading] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const { setNotification } = useStateContext();
-
 
   useEffect(() => {
     getCategories();
   }, []);
 
-  const handleExpand = () => setExpanded(!expanded);
+  const handleExpand = (id) => {
+    setExpanded({
+      ...expanded,
+      [id]: !expanded[id],
+    });
+  };
+
+  const handleModal = () => {
+    setModalOpen(!modalOpen);
+  };
 
   const onDeleteClick = (category) => {
     if (!window.confirm("Are you sure you want to delete this category?")) {
@@ -48,7 +57,7 @@ export default function Categories() {
   };
 
   return (
-    <div >
+    <div>
       <div
         style={{
           display: "flex",
@@ -61,71 +70,71 @@ export default function Categories() {
           Add new
         </Link>
       </div>
-      <div className="card animated fadeInDown">
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Title</th>
-              <th>Parent</th>
-              <th>Description</th>
-              <th>Created</th>
-              <th>Time</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          {loading && (
-            <tbody>
+      <Modal open={modalOpen} onClose={handleModal}>
+        <div className="card animated fadeInDown">
+          <table>
+            <thead>
               <tr>
-                <td colSpan="10" className="text-center">
-                  <img src={loading_icon} width="40px" alt="Loading" />
-                </td>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Parent</th>
+                <th>Actions</th>
               </tr>
-            </tbody>
-          )}
-          {!loading && (
+            </thead>
             <tbody>
-            {categories.map(c => (
-              <React.Fragment key={c.id}>
+              {loading ? (
                 <tr>
-                  <td>{c.id}</td>
-                  <td>{c.title}</td>
-                  <td>{c.parent_id}</td>
-                  <td>{c.description}</td>
-                  <td>{c.created_at.slice(0, 10)}</td>
-                  <td>{c.created_at.slice(11, 19)}</td>
-                  <td>
-                    <Link className="btn-edit" to={'/categories/' + c.id}>
-                      Edit
-                    </Link>
-
-                    <button
-                      className="btn-delete" onClick={() => onDeleteClick(c)}>
-                      Delete
-                    </button>
-                    <button className="btn-hide-show" onClick={() => handleExpand()}>
-                      {expanded ? "Hide" : "Show"}
-                    </button>
+                  <td colSpan={4}>
+                    <img
+                      src={loading_icon}
+                      alt="Loading"
+                      width="50"
+                      height="50"
+                    />
                   </td>
                 </tr>
-                {expanded && c.childrens.map((child) => (
-                  <tr key={child.id}>
-                    <td></td>
-                    <td>{child.title}</td>
-                    <td>{child.parent_id}</td>
-                    <td>{child.description}</td>
-                    <td>{child.created_at.slice(0, 10)}</td>
-                    <td>{child.created_at.slice(11, 19)}</td>
-                  </tr>
-                ))}
-              </React.Fragment>
-            ))}
-
-
+              ) : (
+                categories.map((category) => (
+                  <React.Fragment key={category.id}>
+                    <tr>
+                      <td>{category.id}</td>
+                      <td>{category.title}</td>
+                      <td>{category.parent_id}</td>
+                      <td>
+                        <Link to={`/categories/${category.id}/edit`}>Edit</Link>
+                        <a href="#" onClick={() => onDeleteClick(category)}>
+                          Delete
+                        </a>
+                        {category.children.length > 0 && (
+                          <a href="#" onClick={() => handleExpand(category.id)}>
+                            {expanded[category.id] ? "Collapse" : "Expand"}
+                          </a>
+                        )}
+                      </td>
+                    </tr>
+                    {expanded[category.id] &&
+                      category.children.map((child) => (
+                        <tr key={child.id}>
+                          <td>{child.id}</td>
+                          <td>- {child.title}</td>
+                          <td>{child.parent_id}</td>
+                          <td>
+                            <Link to={`/categories/${child.id}/edit`}>
+                              Edit
+                            </Link>
+                            <a href="#" onClick={() => onDeleteClick(child)}>
+                              Delete
+                            </a>
+                          </td>
+                        </tr>
+                      ))}
+                  </React.Fragment>
+                ))
+              )}
             </tbody>
-          )}
-        </table>
-      </div>
+          </table>
+        </div>
+      </Modal>
     </div>
   );
 }

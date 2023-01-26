@@ -35,8 +35,8 @@ input {
 }
 
 input:focus {
-    border-color: #5b08a7;
-    box-shadow: 0 0 5px rgba(91, 8, 167, 1);
+    border-color: #0865a7;
+    box-shadow: 0 0 5px #0865a7;
 }
 
 .btn,
@@ -45,7 +45,7 @@ input:focus {
 .btn-delete {
     font-family: "Roboto", sans-serif;
     outline: 0;
-    background: #5b08a7;
+    background: #0865a7;
     border: 0;
     text-decoration: none;
     padding: 15px;
@@ -90,7 +90,10 @@ input:focus {
 .btn:hover,
 .btn:active,
 .btn:focus {
-    background: #5b08a7;
+    background: #0865a7;
+}
+.btn-logout:hover::after{
+    display: none;
 }
 
 .text-center {
@@ -176,7 +179,7 @@ table > tbody > tr > td {
 }
 
 .login-signup-form .form .message a {
-    color: #5b08a7;
+    color: #0865a7;
     text-decoration: none;
 }
 
@@ -190,7 +193,7 @@ table > tbody > tr > td {
 
 #defaultLayout aside {
     width: 240px;
-    background-color: #5b08a7;
+    background-color: #0865a7;
     padding: 1rem
 }
 
@@ -252,6 +255,12 @@ button{
 .btn-add::after{
     display: none;
 }
+
+.btn-add:hover{
+    opacity: 0.8;
+    color: #fff;
+}
+
 a{
     text-decoration: none;
     color: #000;
@@ -261,13 +270,13 @@ a{
     position: relative;
 }
 a:hover{
-    color: #5b08a7;
+    color: #0865a7;
 }
 
 a:after{
     position: absolute;
     content: '';
-    background-color: #5b08a7;
+    background-color: #0865a7;
     bottom: -5px;
     left: 0;
     width: 0%;
@@ -425,7 +434,6 @@ a:hover::after{
     }
     
     .menu ul {
-        padding: 0;
         top: 8em;
         display: flex;
         flex-direction: column;
