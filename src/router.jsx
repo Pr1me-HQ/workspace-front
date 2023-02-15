@@ -10,6 +10,10 @@ import UserForm from "./views/UserForm";
 import Categories from "./views/Categories";
 import CategoryForm from "./views/CategoryForm";
 import Regions from "./views/Regions";
+import Places from "./views/Places.jsx";
+import PlaceForm from "./views/PlaceForm.jsx";
+import RegionForm from "./views/RegionForm.jsx";
+import Goods from "./views/Goods.jsx";
 
 const router = createBrowserRouter([
   {
@@ -33,10 +37,6 @@ const router = createBrowserRouter([
         element: <UserForm key="userCreate" />
       },
       {
-        path: '/regions',
-        element: <Regions/>
-      },
-      {
         path: '/categories/new',
         element: <CategoryForm key="categoryCreate" />
       },
@@ -53,10 +53,46 @@ const router = createBrowserRouter([
         path: '/users/:id',
         element: <UserForm key="userUpdate" />
       },
-     {
+      {
         path: 'categories',
         element: <Categories/>
-     }   
+      },
+      {
+        path: '/regions',
+        element: <Regions/>
+      },
+      {
+        path: '/regions/new',
+        element: <RegionForm key="regionCreate" />
+      },
+      {
+        path: '/regions/:id',
+        element: <RegionForm key="regionUpdate" />
+      },
+      {
+        path: '/regions/:id/edit',
+        elsement: <RegionForm key="regionUpdate" />
+      },
+      {
+        path: 'places',
+        element: <Places/>
+      },
+      {
+        path: '/places/new',
+        element: <PlaceForm key="categoryCreate" />
+      },
+      {
+        path: '/places/:id',
+        element: <PlaceForm key="categoryUpdate" />
+      },
+      {
+        path: '/places/:id/edit',
+        elsement: <PlaceForm key="categoryUpdate" />
+      },
+      {
+        path: '/goods',
+        element: <Goods/>
+      },
     ]
   },
   {

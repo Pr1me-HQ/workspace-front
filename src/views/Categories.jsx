@@ -1,48 +1,62 @@
-import { useEffect, useState } from "react";
-import axiosClient from "../axios-client.js";
-import { useStateContext } from "../context/ContextProvider.jsx";
-import { Link } from "react-router-dom";
-import React from "react";
-import loading_icon from "../assets/loading.svg";
-import Modal from "./Modal";
+import React, { useEffect, useState } from "react";
+import axiosClient from "../axios-client";
+import { useStateContext } from "../context/ContextProvider";
+import { useNavigate, useParams } from "react-router-dom";
+import loading_icon from "../assets/icons/loading.svg";
+import CategoryForm from "./CategoryForm";
+import Modal from "react-bootstrap/Modal";
+import Button from "react-bootstrap/Button";
+import {FiEdit2} from 'react-icons/fi';
+import {BiShow} from 'react-icons/bi';
+import {CgRemoveR} from 'react-icons/cg';
+import {GoDiffAdded} from 'react-icons/go'
 
 export default function Categories() {
+  const [showModal, setShowModal] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState({});
   const [categories, setCategories] = useState([]);
-  const [expanded, setExpanded] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);  
   const { setNotification } = useStateContext();
+  const navigate = useNavigate();
+  const handleClose = () => setShow(false);
+  const [show, setShow] = useState(false);
 
   useEffect(() => {
     getCategories();
+    setCategories(categories);
   }, []);
-
-  const handleExpand = (id) => {
-    setExpanded({
-      ...expanded,
-      [id]: !expanded[id],
-    });
-  };
-
-  const handleModal = () => {
-    setModalOpen(!modalOpen);
-  };
 
   const onDeleteClick = (category) => {
     if (!window.confirm("Are you sure you want to delete this category?")) {
       return;
     }
-    axiosClient
-      .delete(`/categories/${category.id}`)
-      .then(() => {
-        setNotification("Category was successfully deleted");
-        getCategories();
-      })
-      .catch((error) => {
-        setNotification(`Error deleting category: ${error}`);
-      });
+    axiosClient.delete(`/categories/${category.id}`).then(() => {
+      setNotification("Category was successfully deleted");
+      getCategories();
+    });
   };
 
+  const onEditClick = (category) => {
+    setShowModal(false);
+    setShow(true);
+    setSelectedCategory(category);
+    <CategoryForm
+      show={show}
+      category={selectedCategory}
+      categories={categories}
+      handleClose={handleClose}      
+      />
+  };
+
+
+  const getParentCategory = (id, categories) => {
+    const category = categories.find((c) => c.id === id);
+    if (category) {
+      return category.title;
+    }
+    return "None";
+  };
+  
   const getCategories = () => {
     setLoading(true);
     axiosClient
@@ -56,85 +70,130 @@ export default function Categories() {
       });
   };
 
+  const onShowChildrenClick = (c) => {
+    setSelectedCategory(c);
+    setShowModal(true);
+    setLoading(false);
+  };  
+
   return (
-    <div>
+    <div className="content">
       <div
         style={{
+          width: "90%",
           display: "flex",
           justifyContent: "space-around",
-          alignItems: "center",
+          alignItems: "flex-end",
         }}
       >
         <h1>Categories</h1>
-        <Link className="btn-add" to="/categories/new">
-          Add new
-        </Link>
       </div>
-      <Modal open={modalOpen} onClose={handleModal}>
-        <div className="card animated fadeInDown">
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Title</th>
-                <th>Parent</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
+      <Button className="w-25" variant="primary" onClick={() => setShow(true)}>
+        <GoDiffAdded/>
+      </Button>
+
+      <CategoryForm 
+        show={show}
+        selectedCategory={selectedCategory}
+        categories={categories}
+        handleClose={handleClose}
+      />
+
+      <div className="card animated fadeInDown">
+        <table className="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Description</th>
+              {/* <th>Parent Category</th> */}
+              <th>Actions</th>
+            </tr>
+          </thead>
+          {loading && (
             <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan={4}>
-                    <img
-                      src={loading_icon}
-                      alt="Loading"
-                      width="50"
-                      height="50"
-                    />
+              <tr>
+                <td colSpan="10" className="text-center">
+                  <img src={loading_icon} width="40px" alt="Loading" />
+                </td>
+              </tr>
+            </tbody>
+          )}
+          {!loading && (
+            <tbody>
+              {categories.map((c) => (
+                <tr key={c.id} >
+                  <td>{c.id}</td>
+                  <td>{c.title}</td>
+                  <td>{c.description}</td>
+                  {/* <td>
+                    {c.parent_id ? getParentCategory(c.parent_id, categories) : "No parent"}
+                  </td> */}
+                  <td>
+                  <td className="d-flex justify-between m-2">
+                <button onClick={() => onEditClick(c)} className="btn-edit">
+                <FiEdit2/>
+                </button>
+                <Button  variant="primary" onClick={() => onShowChildrenClick(c)}>
+                  <BiShow/>
+                </Button>
+                <Modal show={showModal} onHide={() => setShowModal(false)}>
+                  <Modal.Header closeButton>
+                    <Modal.Title>Children categories of {selectedCategory.title}</Modal.Title>
+                  </Modal.Header>
+                  <Modal.Body>
+                          {selectedCategory.childrens && selectedCategory.childrens.length > 0 ? (
+                            selectedCategory.childrens.map((c) => (
+                              <div key={c.id}>
+                                <div className="category">
+                                  <div className="category-title">{c.title}</div>
+                                  <div className="category-parent">
+                                    Parent: {getParentCategory(c.parent_id, categories)}
+                                  </div>
+                                  <div className="category-actions">
+                                    <Button
+                                      variant="primary"
+                                      onClick={() => onEditClick(c)}
+                                    >
+                                      <FiEdit2/>
+                                    </Button>
+                                    <Button
+                                      variant="danger"
+                                      onClick={() => onDeleteClick(c)}
+                                    >
+                                      <CgRemoveR/>
+                                    </Button>
+                                    <Button
+                                      variant="primary"
+                                      onClick={() => onShowChildrenClick(c)}
+                                    >
+                                      <BiShow/>
+                                    </Button>
+                                  </div>
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <div>No children categories</div>
+                          )}
+                  </Modal.Body>
+                  <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowModal(false)}>
+                      Close
+                    </Button>
+                  </Modal.Footer>
+                </Modal>
+                <button onClick={() => onDeleteClick(c)} className="btn-delete">
+                  <CgRemoveR/>
+                </button>
+                  </td>   
                   </td>
                 </tr>
-              ) : (
-                categories.map((category) => (
-                  <React.Fragment key={category.id}>
-                    <tr>
-                      <td>{category.id}</td>
-                      <td>{category.title}</td>
-                      <td>{category.parent_id}</td>
-                      <td>
-                        <Link to={`/categories/${category.id}/edit`}>Edit</Link>
-                        <a href="#" onClick={() => onDeleteClick(category)}>
-                          Delete
-                        </a>
-                        {category.children.length > 0 && (
-                          <a href="#" onClick={() => handleExpand(category.id)}>
-                            {expanded[category.id] ? "Collapse" : "Expand"}
-                          </a>
-                        )}
-                      </td>
-                    </tr>
-                    {expanded[category.id] &&
-                      category.children.map((child) => (
-                        <tr key={child.id}>
-                          <td>{child.id}</td>
-                          <td>- {child.title}</td>
-                          <td>{child.parent_id}</td>
-                          <td>
-                            <Link to={`/categories/${child.id}/edit`}>
-                              Edit
-                            </Link>
-                            <a href="#" onClick={() => onDeleteClick(child)}>
-                              Delete
-                            </a>
-                          </td>
-                        </tr>
-                      ))}
-                  </React.Fragment>
-                ))
-              )}
+              ))}
             </tbody>
-          </table>
-        </div>
-      </Modal>
+          )}
+        </table>
+      </div>
     </div>
   );
 }

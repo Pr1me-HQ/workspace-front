@@ -1,42 +1,60 @@
-import {useNavigate, useParams} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import {useEffect, useState} from "react";
 import axiosClient from "../axios-client.js";
 import {useStateContext} from "../context/ContextProvider.jsx";
+import {Button, Modal} from "react-bootstrap";
 
-export default function RegionForm() {
+export default function RegionForm({ showForm, closeForm , selectedRegion, regions }) {
   const navigate = useNavigate();
-  let {id} = useParams();
-  const [region, setregion] = useState({
+  const [region, setRegion] = useState({
     id: null,
-    // first_name: '',
-    email: '',
-    password: '',
-    password_confirmation: ''
+    title: selectedRegion.title ? selectedRegion.title : '',
+    parent_id: selectedRegion.parent_id ? selectedRegion.parent_id : '',
   })
   const [errors, setErrors] = useState(null)
-  const [loading, setLoading] = useState(false)
+  const [loading] = useState(false)
   const {setNotification} = useStateContext()
 
-  if (id) {
-    useEffect(() => {
-      setLoading(true)
-      axiosClient.get(`/regions/${id}`)
-        .then(({data}) => {
-          setLoading(false)
-          setregion(data)
-        })
-        .catch(() => {
-          setLoading(false)
-        })
-    }, [])
-  }
+  useEffect(() => {
+    setRegion(selectedRegion);
+    console.log(selectedRegion);
+  }, [selectedRegion]);
+
+  const renderCategories = (regions, depth = 0) => {
+    return regions.map((region) => {
+      const indentation = " ".repeat(depth * 2);
+      if (region.childrens && region.childrens.length > 0) {
+        return [
+          <option key={region.id} value={region.id}>
+            {indentation + region.title}
+          </option>,
+          renderCategories(region.childrens, depth + 1),
+        ];
+      } else {
+        return (
+          <option key={region.id} value={region.id}>
+            {indentation + region.title}
+          </option>
+        );
+      }
+    });
+  };
+  
+  
+  const getAllChildren = (region, allChildren = []) => {
+    region.childrens.forEach((child) => {
+      allChildren.push(child);
+      getAllChildren(child, allChildren);
+    });
+    return allChildren;
+  };
 
   const onSubmit = ev => {
     ev.preventDefault()
-    if (region.id) {
+    if (selectedRegion.id) {
       axiosClient.put(`/regions/${region.id}`, region)
         .then(() => {
-          setNotification('region was successfully updated')
+          setNotification('Region was successfully updated')
           navigate('/regions')
         })
         .catch(err => {
@@ -61,32 +79,39 @@ export default function RegionForm() {
   }
 
   return (
-    <>
-      {region.id && <h1>Update region: {region.name}</h1>}
-      {!region.id && <h1>New region</h1>}
-      <div className="card animated fadeInDown">
-        {loading && (
-          <div className="text-center">
-            Loading...
+    <Modal show={showForm} onHide={closeForm}>
+      <Modal.Header closeButton>
+        <Modal.Title>{region.id ? 'Edit region' : 'Add region'}</Modal.Title>
+      
+      </Modal.Header>
+      <Modal.Body>
+        <form onSubmit={onSubmit}>
+          <div className="mb-3">
+            <label htmlFor="title" className="form-label">Title</label>
+            <input type="text" className="form-control" id="title" name="title"
+                    value={region.title}
+                    onChange={ev => setRegion({...region, title: ev.target.value})}/>
+            {errors && errors.title && <div className="text-danger">{errors.title[0]}</div>}
           </div>
-        )}
-        {errors &&
-          <div className="alert">
-            {Object.keys(errors).map(key => (
-              <p key={key}>{errors[key][0]}</p>
-            ))}
+          <div className="mb-3">
+            <label htmlFor="parent_id" className="form-label">Parent</label>
+            <select className="form-select" id="parent_id" name="parent_id"
+                    value={region.parent_id}
+                    onChange={ev => setRegion({...region, parent_id: ev.target.value})}>
+            {renderCategories(regions)}
+            </select>
+            {errors && errors.parent_id && <div className="text-danger">{errors.parent_id[0]}</div>}
           </div>
-        }
-        {!loading && (
-          <form onSubmit={onSubmit}>
-            {/* <input value={region.name} onChange={ev => setregion({...region, name: ev.target.value})} placeholder="Name"/> */}
-            <input value={region.email} onChange={ev => setregion({...region, email: ev.target.value})} placeholder="Email"/>
-            <input type="password" onChange={ev => setregion({...region, password: ev.target.value})} placeholder="Password"/>
-            <input type="password" onChange={ev => setregion({...region, password_confirmation: ev.target.value})} placeholder="Password Confirmation"/>
-            <button className="btn">Save</button>
-          </form>
-        )}
-      </div>
-    </>
+          <div className="d-flex justify-content-end">
+            <Button variant="secondary" onClick={closeForm}>
+              Close
+            </Button>
+            <Button variant="primary" type="submit" className="ms-2">
+              {loading ? 'Loading...' : 'Save'}
+            </Button>
+          </div>
+        </form>
+      </Modal.Body>
+    </Modal>
   )
 }

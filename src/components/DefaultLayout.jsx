@@ -1,82 +1,133 @@
-import React, { useEffect, useState} from "react";
+import React from "react";
 import { Navigate, Outlet, Link } from "react-router-dom";
 import { useStateContext } from "../context/ContextProvider";
 import axiosClient from "../axios-client.js";
-import Navbar from "./NavBar.jsx";
+import Dashboard from "../Dashboard.jsx";
+import "../assets/js/bootstrap.min.js";
+import "../assets/js/dashboard.js";
+import {GrMapLocation, GrMap, GrDocumentText} from 'react-icons/gr'
+import {BiCategoryAlt} from 'react-icons/bi'
+import {HiUserGroup} from 'react-icons/hi'
+import {MdLogout} from 'react-icons/md'
+import {RiDashboardLine} from 'react-icons/ri'
+import {RxDashboard} from 'react-icons/rx'
 
 export default function DefaultLayout() {
   const { token, setToken, notification } = useStateContext();
-  const [isTabletOrMobile, setIsTabletOrMobile] = useState(false);
 
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(max-width: 768px)");
-    mediaQuery.addListener(handleMediaQueryChange);
-    handleMediaQueryChange(mediaQuery);
-
-    return () => {
-      mediaQuery.removeListener(handleMediaQueryChange);
-    };
-  }, []);
-
-  function handleMediaQueryChange(mediaQuery) {
-    if (mediaQuery.matches) {
-      setIsTabletOrMobile(true);
-    } else {
-      setIsTabletOrMobile(false);
-    }
-  }
-
-  if (!token) {
-    return <Navigate to="/login" />;
-  }
+  if (!token) return <Navigate to="/login" />;
 
   const onLogout = (ev) => {
     ev.preventDefault();
     axiosClient
-      .post("/logout", token)
+      .post("/logout", { token })
       .then(() => {
         setToken(null);
       });
   };
+  // create function to handle active class on nav link
+  const handleActive = (ev) => {
+    const links = document.querySelectorAll(".nav-link");
+    links.forEach((link) => {
+      link.classList.remove("active");
+    });
+    ev.target.classList.add("active");
+  };
 
   return (
-    <div id="defaultLayout">
-      {isTabletOrMobile ? (
-        <Navbar>
-          <Link to="/dashboard">Dashboard</Link>
-          <Link to="/users">Users</Link>
-          <Link to="/categories">Categories</Link>
-          <Link to="/products">Products</Link>
-          <Link to="/orders">Orders</Link>
-          <Link to="/settings">Settings</Link>
-          <a onClick={onLogout} className="btn-logout" href="#">Logout</a>
-        </Navbar>
-      ) : (
-        <header className="navbar">
-          <ul className="nav-links">
-            <li className="logo"></li>
-            <li><Link to="/dashboard">Dashboard</Link></li>
-            <li><Link to="/users">Users</Link></li>
-            <li><Link to="/categories">Categories</Link></li>
-            <li><Link to="/products">Products</Link></li>
-            <li><Link to="/orders">Orders</Link></li>
-            <li><Link to="/settings">Settings</Link></li>
-            <li><a onClick={onLogout} className="btn-logout" href="#">Logout</a></li>
-          </ul>           
-        </header>
+    <div>
+      <header className="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow d-flex  flex-row">
+        <a className="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#">
+          IT-LAB
+        </a>
+        <button
+          className="navbar-toggler position-absolute d-md-none align-self-end collapsed"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#sidebarMenu"
+          aria-controls="sidebarMenu"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span className="navbar-toggler-icon"></span>
+        </button>
+      </header>
 
-      )}
-      <div className="content">
-        <main>
-          <Outlet/>
-        </main>
-        {notification &&
-          <div className="notification">
-            {notification}
-          </div>
-        }
-        </div>
+      <div className="container-fluid">
+        <div className="row">
+          <nav
+            id="sidebarMenu"
+            className="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse"
+            onClick={handleActive}
+          >
+            <div className="position-sticky pt-3 sidebar-sticky">
+              <ul className="nav flex-column">
+              <li className="nav-item">
+                  <Link to={'/dashboard'} className="nav-link" aria-current="page">
+                    <span className="align-text-bottom"><RiDashboardLine/> </span>
+                    Dashboard
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link to={'/regions'} className="nav-link">
+                    <span className="align-text-bottom"><GrMapLocation/> </span>
+                    Regions
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link to={'/goods'} className="nav-link">
+                    <span className="align-text-bottom"><RxDashboard/> </span>
+                    Goods
+                  </Link>
+                </li>
+                <li className="nav-item active">
+                  <Link to={'/users'} className="nav-link">
+                    <span className="align-text-bottom"><HiUserGroup/> </span>
+                    Users
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link to={'/categories'} className="nav-link">
+                    <span className="align-text-bottom"><BiCategoryAlt/> </span>
+                    Categories
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link to={'/places'} className="nav-link">
+                    <span className="align-text-bottom"><GrMap/> </span>
+                    Places
+                  </Link>
+                </li>
+                {/* <li className="nav-item">
+                  <Link to={'/orders'} className="nav-link">
+                    <span className="align-text-bottom"><GrDocumentText/> </span>
+                    Orders
+                  </Link>
+                </li> */}
+                <li className="nav-item">
+                  <Link to={'/login'} className="nav-link" onClick={onLogout}>
+                <span className="align-text-bottom"><MdLogout/> </span>
+                    Logout
+                  </Link>
+                </li>    
+        </ul>
       </div>
-    );
-  }
-  
+      {notification && (
+      <div className="fixed-top m-2 p-2 bg-primary text-white text-center">
+        {notification}
+      </div>
+    )}
+
+    </nav>
+
+    <main>
+            {/* Routes */}
+            <Outlet>
+              <Link path="/dashboard" element={<Dashboard />} />
+            </Outlet>
+    </main>
+  </div>
+</div>
+    </div>
+  );
+}

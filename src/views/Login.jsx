@@ -20,9 +20,10 @@ export default function Login() {
       email: emailRef.current.value,
       password: passwordRef.current.value,
     }
-    console.log(payload)
     axiosClient.post('/login', payload)
       .then(({data}) => {
+        console.log(data);
+        setUser(data.user);
         setToken(data.token);
       })
       .catch((err) => {

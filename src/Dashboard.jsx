@@ -1,9 +1,7 @@
-import { useState } from 'react'
-
 function Dashboard() {
 
   return (
-    <div>
+    <div className="d-flex justify-content-around mt-4">
         <h1>Dashboard</h1>
     </div>
   )
