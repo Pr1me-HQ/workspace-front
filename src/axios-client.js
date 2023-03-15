@@ -10,9 +10,7 @@ axiosClient.interceptors.request.use((config) => {
   const token = localStorage.getItem('ACCESS_TOKEN');
   config.headers.Authorization = `Bearer ${token}`
   return config;
-}, (error) => {
-  return Promise.reject(error);
-});
+})
 
 // Add a response interceptor
 axiosClient.interceptors.response.use((response) => {
@@ -29,4 +27,5 @@ axiosClient.interceptors.response.use((response) => {
   throw error;
 });
 
-export default axiosClient;
+
+export default axiosClient; 

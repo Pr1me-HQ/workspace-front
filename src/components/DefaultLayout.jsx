@@ -1,133 +1,125 @@
-import React from "react";
-import { Navigate, Outlet, Link } from "react-router-dom";
-import { useStateContext } from "../context/ContextProvider";
-import axiosClient from "../axios-client.js";
-import Dashboard from "../Dashboard.jsx";
-import "../assets/js/bootstrap.min.js";
-import "../assets/js/dashboard.js";
-import {GrMapLocation, GrMap, GrDocumentText} from 'react-icons/gr'
-import {BiCategoryAlt} from 'react-icons/bi'
-import {HiUserGroup} from 'react-icons/hi'
-import {MdLogout} from 'react-icons/md'
-import {RiDashboardLine} from 'react-icons/ri'
-import {RxDashboard} from 'react-icons/rx'
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { Navigate } from "react-router-dom";
+import { Outlet } from "react-router-dom";
+import {
+  RiDashboardLine,
+  BiMap,
+  BiCategoryAlt,
+  AiOutlineShopping,
+  IoIosPricetags,
+  BiUser,
+  HiOutlineMenu,
+  BsFillPinMapFill,
+  MdOutlineStorage,
+  AiOutlineDeploymentUnit
+} from "react-icons/all";
+import {useStateContext} from '../context/ContextProvider.jsx';
 
-export default function DefaultLayout() {
-  const { token, setToken, notification } = useStateContext();
+const menuItems = [
+  { to: "/dashboard", icon: <RiDashboardLine  size={25}/>, label: "Главная" },
+  { to: "/regions", icon: <BiMap size={25}/>,  label: "Регионы" },
+  { to: "/goods", icon: <AiOutlineShopping size={25} />, label: "Товары" },
+  { to: "/users", icon: <BiUser size={25} />, label: "Пользователи" },
+  { to: "/categories", icon: <BiCategoryAlt size={25} />, label: "Категории" },
+  { to: "/places", icon: <BsFillPinMapFill size={25} />, label: "Места" },
+  { to: "/storages", icon: <MdOutlineStorage size={25} />, label: "Хранилище" },
+  { to: "/tags", icon: <IoIosPricetags size={25} />, label: "Теги" },
+  { to: "/units", icon: <AiOutlineDeploymentUnit size={25} />, label: "Единицы" },
+];
 
-  if (!token) return <Navigate to="/login" />;
+function DefaultLayout() {
+  const [activeLink, setActiveLink] = useState(null);
+  const {notification, token, setToken} = useStateContext();
+  
+  const handleLinkClick = (index) => {
+    setActiveLink(index);
+  };  
 
-  const onLogout = (ev) => {
-    ev.preventDefault();
-    axiosClient
-      .post("/logout", { token })
-      .then(() => {
-        setToken(null);
-      });
-  };
-  // create function to handle active class on nav link
-  const handleActive = (ev) => {
-    const links = document.querySelectorAll(".nav-link");
-    links.forEach((link) => {
-      link.classList.remove("active");
-    });
-    ev.target.classList.add("active");
-  };
+  if (!token) {
+    return <Navigate to="/login" />;
+  }
 
+  useEffect(() => {
+    const script = document.createElement('script');
+  
+    script.src = "../test/script.js";
+    script.async = true;
+  
+    document.body.appendChild(script);
+  
+    return () => {
+      document.body.removeChild(script);
+    }
+  }, []);
+  
+  
   return (
-    <div>
-      <header className="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow d-flex  flex-row">
-        <a className="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#">
-          IT-LAB
-        </a>
-        <button
-          className="navbar-toggler position-absolute d-md-none align-self-end collapsed"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#sidebarMenu"
-          aria-controls="sidebarMenu"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
-      </header>
+    <>
+        <div className="logo-name">
+            <div className="logo-image">
+                {/* <img src="images/logo.png" alt=""></img> */}
+            </div>
 
-      <div className="container-fluid">
-        <div className="row">
-          <nav
-            id="sidebarMenu"
-            className="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse"
-            onClick={handleActive}
-          >
-            <div className="position-sticky pt-3 sidebar-sticky">
-              <ul className="nav flex-column">
-              <li className="nav-item">
-                  <Link to={'/dashboard'} className="nav-link" aria-current="page">
-                    <span className="align-text-bottom"><RiDashboardLine/> </span>
-                    Dashboard
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link to={'/regions'} className="nav-link">
-                    <span className="align-text-bottom"><GrMapLocation/> </span>
-                    Regions
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link to={'/goods'} className="nav-link">
-                    <span className="align-text-bottom"><RxDashboard/> </span>
-                    Goods
-                  </Link>
-                </li>
-                <li className="nav-item active">
-                  <Link to={'/users'} className="nav-link">
-                    <span className="align-text-bottom"><HiUserGroup/> </span>
-                    Users
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link to={'/categories'} className="nav-link">
-                    <span className="align-text-bottom"><BiCategoryAlt/> </span>
-                    Categories
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link to={'/places'} className="nav-link">
-                    <span className="align-text-bottom"><GrMap/> </span>
-                    Places
-                  </Link>
-                </li>
-                {/* <li className="nav-item">
-                  <Link to={'/orders'} className="nav-link">
-                    <span className="align-text-bottom"><GrDocumentText/> </span>
-                    Orders
-                  </Link>
-                </li> */}
-                <li className="nav-item">
-                  <Link to={'/login'} className="nav-link" onClick={onLogout}>
-                <span className="align-text-bottom"><MdLogout/> </span>
-                    Logout
-                  </Link>
-                </li>    
-        </ul>
-      </div>
-      {notification && (
-      <div className="fixed-top m-2 p-2 bg-primary text-white text-center">
-        {notification}
-      </div>
-    )}
+            <span className="logo_name">IT-Lab</span>
+        </div>
+      <nav>
 
+        <div className="menu-items">
+            <ul className="nav-links">
+              
+
+              <HiOutlineMenu className="uil uil-bars sidebar-toggle mb-5" size={40}/>
+                {menuItems.map((item, index) => ( 
+                  <li key={index} className={activeLink === index ? "active" : ""}>
+                        <Link to={item.to} onClick={() => handleLinkClick(index)}>
+                            <span className="icon mx-2">{item.icon}</span>
+                            <span className="link-name">{item.label}</span>
+                        </Link>
+                    </li>
+                ))}
+            </ul>
+            
+            <ul className="logout-mode">
+                <li><a href="#">
+                    <i className="uil uil-signout"></i>
+                    <span className="link-name">Выход</span>
+                </a></li>
+
+                <li className="mode">
+                    <a href="#">
+                        <i className="uil uil-moon"></i>
+                    <span className="link-name">Тёмная тема</span>
+                </a>
+
+                <div className="mode-toggle">
+                  <span className="switch"></span>
+                </div>
+            </li>
+            </ul>
+        </div>
     </nav>
 
-    <main>
-            {/* Routes */}
-            <Outlet>
-              <Link path="/dashboard" element={<Dashboard />} />
-            </Outlet>
-    </main>
-  </div>
-</div>
-    </div>
-  );
+    <section className="dashboard">
+
+        <div className="dash-content">
+        {
+          notification && 
+          <div className="alert alert-success">
+            {notification}
+          </div>
+        }
+        <main>
+          <div>
+            <Outlet/>
+          </div>
+        </main>
+                
+        </div>
+    </section>
+
+    </>
+    );  
 }
+
+export default DefaultLayout;

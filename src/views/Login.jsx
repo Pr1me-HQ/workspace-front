@@ -1,10 +1,10 @@
 import {Link} from "react-router-dom";
-import axiosClient from "../axios-client.js";
 import {createRef} from "react";
 import {useStateContext} from "../context/ContextProvider.jsx";
 import { useState } from "react";
 import { useTranslation } from 'react-i18next';
 import "../i18n.js";
+import axiosClient from "../axios-client.js";
 
 export default function Login() {
   const { t } = useTranslation();
@@ -15,24 +15,23 @@ export default function Login() {
 
   const onSubmit = ev => {
     ev.preventDefault()
-
+    
     const payload = {
       email: emailRef.current.value,
       password: passwordRef.current.value,
     }
-    axiosClient.post('/login', payload)
+
+    axiosClient.post("/login", payload)
       .then(({data}) => {
-        console.log(data);
-        setUser(data.user);
-        setToken(data.token);
+        setUser(data.user)
+        setToken(data.token)
       })
-      .catch((err) => {
-        const response = err.response;
-        if (response && response.status === 422) {
-          setMessage(response.data.message)
-        }
+      .catch(error => {
+        setMessage(error.response.data.message)
       })
   }
+  
+  
 
   return (
     <div className="login-signup-form animated fadeInDown">
